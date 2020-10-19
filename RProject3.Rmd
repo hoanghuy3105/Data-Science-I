@@ -1,0 +1,200 @@
+---
+title: "R Project 3"
+author: "Huy Huynh"
+date: "2/26/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+Note that these exercises should be performed using `dplyr` (do not directly access or manipulate the data frames). 
+
+Turn in the html to blackboard with the filename `RProject3_yourlastname.html`. **Points will be taken off for not doing this.** 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Part 1 
+
+Install and load the "fueleconomy" package and the tidyverse
+
+```{r}
+# run these only once
+# install.packages("devtools")
+# devtools::install_github("hadley/fueleconomy")
+```
+
+```{r}
+library(tidyverse)
+library(fueleconomy)
+glimpse(vehicles)
+```
+
+
+
+1. Select the different manufacturers (makes) of the cars in this data set. Save this vector in a variable
+```{r}
+makes <- select(vehicles,make)
+```
+
+
+2. Use the `distinct()` function to determine how many different car manufacturers are represented by the data set
+
+```{r}
+nrow(distinct(makes))
+```
+
+3. Filter the data set for vehicles manufactured in 1997
+
+```{r}
+vehicle_1997 <- filter(vehicles, year == 1997)
+vehicle_1997
+```
+
+4. Arrange the 1997 cars by highway (`hwy`) gas milage
+```{r}
+vehicle_1997 <- arrange(vehicle_1997, hwy)
+vehicle_1997
+```
+
+
+5. Mutate the 1997 cars data frame to add a column `average` that has the average gas milage (between city and highway mpg) for each car
+
+```{r}
+vehicle_1997 <- mutate(vehicle_1997, average = (hwy + cty) / 2)
+vehicle_1997
+```
+
+6. Filter the whole vehicles data set for 2-Wheel Drive vehicles that get more than 20 miles/gallon in the city.  Save this new data frame in a variable.
+```{r}
+two_wheel <- filter(vehicles, drive == "2-Wheel Drive", cty > 20)
+```
+
+
+7. Of the above vehicles, what is the vehicle ID of the vehicle with the worst hwy mpg? Hint: filter for the worst vehicle, then select its ID.
+```{r}
+filtered <- filter(two_wheel, hwy == min(hwy))
+worst_hwy <- select(filtered, id)
+```
+
+
+8. Write a function that takes a `year_choice` and a `make_choice` as parameters, and returns the vehicle model that gets the most hwy miles/gallon of vehicles  of that make in that year. You'll need to filter more (and do some selecting)!
+
+```{r}
+make_year_filter <- function(make_choice, year_choice) {
+  filtered <- filter(vehicles, make == make_choice, year == year_choice)
+  filtered <- filter(filtered, hwy == max(hwy))
+  selected <- select(filtered, model)
+  selected
+}
+```
+
+9. What was the most efficient Honda model of 1995?
+```{r}
+make_year_filter("Honda", 1995)
+```
+
+10. Which 2015 Acura model has the best hwy MGH? (Use dplyr, but without method
+chaining or pipes--use temporary variables!)
+```{r}
+acuras <- filter(vehicles, make == "Acura", year == 2015)
+best_acura <- filter(acuras, hwy == max(hwy))
+best_model <- select(best_acura, model)
+best_model
+```
+
+
+11. Which 2015 Acura model has the best hwy MPG? (Use dplyr, nesting functions)
+
+```{r}
+best_model <- select(
+  filter(
+    filter(vehicles, make == "Acura", year == 2015), hwy == max(hwy)
+  ), model
+)
+best_model
+```
+
+12. Which 2015 Acura model has the best hwy MPG? (Use dplyr and the pipe operator)
+
+```{r}
+best_model <- filter(vehicles, make == "Acura", year == 2015) %>%
+  filter(hwy == max(hwy)) %>%
+  select(model)
+best_model
+```
+
+## Bonus
+
+Write 3 functions, one for each approach in 10, 11 and 12.  Then, test how long it takes to perform each one 1000 times
+```{r}
+
+```
+
+
+# Part 2 
+
+
+Read in the data (from `pulitzer-circulation-data.csv`). Remember to 
+not treat strings as factors!
+
+```{r}
+pulitzer <- read.csv("pulitzer-circulation-data.csv", stringsAsFactors = FALSE)
+```
+
+1. View in the data set. Start to understand what the data set contains
+
+```{r}
+view(pulitzer)
+```
+
+2. Print out the names of the columns for reference
+
+```{r}
+colnames(pulitzer)
+```
+
+3. Use the 'str()' function to also see what types of values are contained in each column (you're looking at the second column after the `:`) Did any value type surprise you? Why do you think they are that type?
+
+```{r}
+str(pulitzer)
+```
+Daily.Circulation of 2004 and 2013 and Change.in.Daily.Circulation..2004.2013 did surprise me since I beleive these should be integers instead of characters. 
+
+4. Add a column to the data frame called 'Pulitzer.Prize.Change` that contains the difference in the number of times each paper was a winner or finalist (hereafter we'll call this group "winner") during 2004-2014 and during 1990-2003
+```{r}
+mutate(pulitzer,
+  Pulitzer.Prize.Change =
+    Pulitzer.Prize.Winners.and.Finalists..2004.2014- Pulitzer.Prize.Winners.and.Finalists..1990.2003
+)
+```
+
+
+5. What was the name of the publication that has the most winners between 2004-2014?
+```{r}
+filter(pulitzer, max(Pulitzer.Prize.Winners.and.Finalists..2004.2014) ==
+  Pulitzer.Prize.Winners.and.Finalists..2004.2014) %>%
+  select(Newspaper)
+
+```
+
+
+6. Which publication with at least 5 winners between 2004-2014 had the biggest decrease(negative) in daily circulation numbers?
+```{r}
+filter(pulitzer, Pulitzer.Prize.Winners.and.Finalists..2004.2014 >= 5) %>%
+  filter(min(Change.in.Daily.Circulation..2004.2013) == Change.in.Daily.Circulation..2004.2013) %>%
+  select(Newspaper)
+```
+
+
+7. An important part about being a data scientist is asking questions.  Write a question you may be interested in about this data set, and then use   dplyr to figure out the answer!
+
+```{r}
+#What was the name of the publication that has the least winners between 1990-2014?
+filter(pulitzer, min(Pulitzer.Prize.Winners.and.Finalists..1990.2014) ==
+  Pulitzer.Prize.Winners.and.Finalists..1990.2014) %>%
+  select(Newspaper, Pulitzer.Prize.Winners.and.Finalists..1990.2014 )
+```
+
+ 

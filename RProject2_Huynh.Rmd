@@ -1,0 +1,131 @@
+---
+title: "R Project 2"
+author: "Huy Huynh"
+date: "Due: Feb 6, 2020"
+output: 
+  html_document: 
+    theme: cosmo
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Please use this as a template, and put your answers in code chunks between the instructions. Turn in your zipped html file. 
+
+## Using Built-in Functions (Practice with Strings)
+
+Work with and learn some new functions to manipulate string variables! 
+
+
+1. Create a variable `lyric` that contains the text "I like to eat apples and bananas"
+
+```{r}
+lyric <- "I like to eat apples and bananas"
+```
+2. Use the `substr()` function to extract the 1st through 13th letters from the `lyric`, and store the result in a variable called `intro` (Use `?substr` to see more about this function)
+
+```{r}
+intro <- substr(lyric,1,13)
+```
+
+3. Use the `substr()` function to extract the 15th through the last letter of the `lyric`, and store the result in a variable called `fruits` (Hint: use `nchar()` to determine how many total letters there are!)
+```{r}
+fruits <- substr(lyric,15, nchar(lyric))
+```
+
+
+4. Use the `gsub()` function to substitute all the "a"s in `fruits` with "ee".  Store the result in a variable called `fruits_e`. (Hint: see http://www.endmemo.com/program/R/sub.php for a simpmle example (or use `?gsub`))
+
+```{r}
+fruits_e <- gsub("a","ee",fruits)
+```
+
+5. Use the `gsub()` function to substitute all the "a"s in `fruits` with "o".  Store the result in a variable called `fruits_o`.
+```{r}
+fruits_o <- gsub("a","o",fruits)
+```
+
+
+6. Create a new variable `lyric_e` that is the `intro` combined with the new`fruits_e` ending. Print out this variable.
+```{r}
+lyric_e <- paste(intro,fruits_e)
+print(lyric_e)
+```
+
+
+7. Without making a new variable, print out the `intro` combined with the new `fruits_o` ending.
+```{r}
+print(paste(intro,fruits_o))
+```
+
+## Writing Functions
+
+1. Define a function `add_three` that takes a single argument and returns a value 3 greater than the input.
+
+```{r}
+add_three <- function(num){
+  num <- num + 3
+  num
+}
+```
+
+2. Create a variable `ten` that is the result of passing 7 to your `add_three` function.
+
+```{r}
+ten <- add_three(7)
+ten
+```
+
+3. Define a function `imperial_to_metric` that takes in two arguments: a number of feet and a number of inches. The function should return the equivalent length in meters
+```{r}
+imperial_to_metric <- function(num_ft,num_inch) {
+  num_m1 <- num_ft * 0.3048
+  num_m2 <- num_inch * 0.0254
+  output <- num_m1 + num_m2
+  return(output)
+}
+```
+
+
+4. Create a variable `height_in_meters` by passing your height in imperial to the `imperial_to_metric` function
+```{r}
+height_in_meters <- imperial_to_metric(5,5)
+height_in_meters
+```
+
+
+## Conditional Statements
+
+
+1. Implement a `fizzbuzz` function. It takes a single number as input. If the number is divisible by three, it returns “fizz”. If it’s divisible by five it returns “buzz”. If it’s divisible by three and five, it returns “fizzbuzz”. Otherwise, it returns the number. Make sure you first write working code before you create the function.
+```{r}
+fizzbuzz <- function(x){
+  if (x %% 3 == 0 && x %% 5 == 0){
+    print('fizzbuzz')
+  } else if (x %% 3 == 0) {
+    print('fizz')
+  } else if (x %% 5 == 0) {
+    print('buzz')
+  } else {
+    print(x)
+  }
+}
+```
+
+
+2. Write a greeting function that says “good morning”, “good afternoon”, or “good evening”, depending on the time of day. (Hint: use a time argument that defaults to lubridate::now(). That will make it easier to test your function.)
+```{r}
+library(lubridate)
+greeting <- function(time_now = lubridate::now()) {
+  hr <- lubridate::hour(time_now)
+  if ( hr >= 12 && hr <= 18){
+    print("Good Afternoon.")
+  } else if( hr >= 18 && hr<= 24){
+    print("Good Evening")
+  } else {
+    print("Good Morning")
+  }
+}
+```
+
